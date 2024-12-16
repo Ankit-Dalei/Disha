@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Button } from "react-native";
+import * as Notifications from "expo-notifications";
 import * as Location from "expo-location";
-import * as Notifications from "expo-notifications"; // Import Notifications
 import { SafeAreaView, Text, StyleSheet, View, ImageBackground } from "react-native";
 import { fetchWeatherData } from "../../service/fetchWeatherData";
 
@@ -9,63 +9,79 @@ export default function HomeScreen() {
   const [weatherData, setWeatherData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  // Fetch weather data based on city
   const loadWeatherData = async (city) => {
     try {
       const data = await fetchWeatherData(city);
       setWeatherData(data);
+
+      if (notificationsEnabled) {
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Weather Update",
+            body: `Temperature: ${data.temp}° | Humidity: ${data.humidity}%`,
+          },
+          trigger: null,
+        });
+      }
     } catch (error) {
       setErrorMessage(error.message);
     }
   };
 
-  useEffect(() => {
-    const fetchLocationAndAddress = async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setErrorMessage("Permission to access location was denied.");
-          setLoading(false);
-          return;
-        }
-
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        const reverseGeocode = await Location.reverseGeocodeAsync({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        });
-
-        if (reverseGeocode.length > 0) {
-          const { city } = reverseGeocode[0];
-          loadWeatherData(city); // Load weather data for the city
-        } else {
-          setErrorMessage("Unable to fetch address.");
-        }
-      } catch (error) {
-        setErrorMessage("An error occurred while fetching location.");
-      } finally {
+  const fetchLocationAndAddress = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMessage("Permission to access location was denied.");
         setLoading(false);
+        return;
+      }
+
+      const currentLocation = await Location.getCurrentPositionAsync({});
+      const reverseGeocode = await Location.reverseGeocodeAsync({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      });
+
+      if (reverseGeocode.length > 0) {
+        const { city } = reverseGeocode[0];
+        await loadWeatherData(city);
+      } else {
+        setErrorMessage("Unable to fetch address.");
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred while fetching location.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const requestNotificationPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Notification permissions not granted.");
       }
     };
 
-    // Notification listener to reload weather data when notification is received
-    const notificationListener = Notifications.addNotificationReceivedListener(() => {
-      fetchLocationAndAddress(); // Refetch weather and location data
+    requestNotificationPermissions();
+
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
     });
 
-    fetchLocationAndAddress(); // Fetch initial weather data
+    fetchLocationAndAddress();
+    const intervalId = setInterval(fetchLocationAndAddress, 30000);
 
-    // Set interval to fetch weather data every 15 minutes (15 minutes in milliseconds)
-    const interval = 15 * 60 * 1000; // 15 minutes in milliseconds
-    const intervalId = setInterval(fetchLocationAndAddress, interval);
 
-    // Cleanup interval and notification listener on component unmount
-    return () => {
-      clearInterval(intervalId);
-      notificationListener.remove();
-    };
-  }, []);
+    return () => clearInterval(intervalId);
+  }, [notificationsEnabled]);
 
   if (loading) {
     return (
@@ -103,6 +119,11 @@ export default function HomeScreen() {
                 <Text style={styles.weatherValue}>{weatherData.humidity}%</Text>
               </View>
             </View>
+
+            <Button
+              title={notificationsEnabled ? "Turn Off Notifications" : "Turn On Notifications"}
+              onPress={() => setNotificationsEnabled((prev) => !prev)}
+            />
           </>
         ) : (
           <Text style={styles.errorText}>
@@ -145,6 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 20,
     width: "90%",
+    marginBottom: 15,
   },
   weatherBox: {
     alignItems: "center",

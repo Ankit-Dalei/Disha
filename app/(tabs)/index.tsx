@@ -71,12 +71,13 @@ export default function HomeScreen() {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
-        shouldPlaySound: false,
+        shouldPlaySound: true,
         shouldSetBadge: false,
       }),
     });
 
     fetchLocationAndAddress();
+    // const intervalId = setInterval(fetchLocationAndAddress, 15 * 60 * 1000);
     const intervalId = setInterval(fetchLocationAndAddress, 30000);
 
 

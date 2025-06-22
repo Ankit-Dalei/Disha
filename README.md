@@ -1,6 +1,6 @@
 <h1 align="center">🌦️ Weather App</h1>
 
-<p align="center">
+<p>
   A simple and responsive weather application that fetches real-time weather data for any city using a public weather API. <br>
   Built using modern web technologies to provide users with current temperature, humidity, weather conditions, and more.
 </p>

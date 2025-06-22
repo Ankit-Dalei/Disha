@@ -1,14 +1,41 @@
-Objective 1: Implement functionality to retrieve the device's real-time geolocation and determine the current weather conditions.
+<h1 align="center">🌦️ Weather App</h1>
 
-Objective 2: Configure push notifications to alert users about weather updates at 15-minute intervals.
+<p align="center">
+  A simple and responsive weather application that fetches real-time weather data for any city using a public weather API. <br>
+  Built using modern web technologies to provide users with current temperature, humidity, weather conditions, and more.
+</p>
 
-Implementation Details:
+---
 
-Real-Time Geolocation and Weather Retrieval:
+## 🚀 Features
 
-Utilize React Native's geolocation capabilities to access the device's current location.
-Integrate with a weather API to fetch and display up-to-date weather information based on the obtained geolocation data.
-Scheduled Push Notifications:
+- 🌍 Search for any city in the world  
+- 🌡️ Display current temperature, humidity, and weather description  
+- 📍 Option to get weather for your current location  
+- 💡 Clean and responsive UI  
 
-Set up a background task that triggers every 15 minutes to check for weather updates.
-Implement push notifications to inform users of any significant weather changes or updates at these intervals.a
+---
+
+## 🖼️ Screenshots
+
+### <p align="center">🟦 Splash Screen</p>
+<p align="center">
+  <img src="https://github.com/Ankit-Dalei/Disha/blob/master/assets/images/spalsh.jpg" width="300">
+</p>
+
+### <p align="center">🏠 Home Screen</p>
+<p align="center">
+  <img src="https://github.com/Ankit-Dalei/Disha/blob/master/assets/images/first.jpg" width="300">
+</p>
+
+### <p align="center">🌤️ Second Screen</p>
+<p align="center">
+  <img src="https://github.com/Ankit-Dalei/Disha/blob/master/assets/images/second.jpg" width="300">
+</p>
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: HTML, CSS, JavaScript  
+- **API**: [OpenWeatherMap API](https://openweathermap.org/api)
